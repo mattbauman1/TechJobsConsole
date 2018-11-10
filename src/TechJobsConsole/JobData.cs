@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -13,7 +14,9 @@ namespace TechJobsConsole
         public static List<Dictionary<string, string>> FindAll()
         {
             LoadData();
-            return AllJobs;
+            Dictionary<string, string>[] holderArray = AllJobs.ToArray();
+            List<Dictionary<string, string>> returnJobs = new List<Dictionary<string, string>>(holderArray);
+            return returnJobs;
         }
 
         /*
@@ -45,16 +48,40 @@ namespace TechJobsConsole
 
             List<Dictionary<string, string>> jobs = new List<Dictionary<string, string>>();
 
+            StringComparison upperandlower = StringComparison.OrdinalIgnoreCase;
+            
             foreach (Dictionary<string, string> row in AllJobs)
             {
                 string aValue = row[column];
 
-                if (aValue.Contains(value))
+                if (aValue.Contains(value, upperandlower))
                 {
                     jobs.Add(row);
                 }
             }
 
+            return jobs;
+        }
+
+        public static List<Dictionary<string, string>> FindByValue(string value)
+        {
+            LoadData();
+
+            List<Dictionary<string, string>> jobs = new List<Dictionary<string, string>>();
+
+            StringComparison upperandlower = StringComparison.OrdinalIgnoreCase;
+
+            foreach (Dictionary<string, string> row in AllJobs)
+            {
+                foreach(KeyValuePair<string, string> jobField in row)
+                {
+                    if (jobField.Value.Contains(value, upperandlower))
+                    {
+                        jobs.Add(row);
+                        break;
+                    }
+                }
+            }
             return jobs;
         }
 
@@ -71,7 +98,7 @@ namespace TechJobsConsole
 
             List<string[]> rows = new List<string[]>();
 
-            using (StreamReader reader = File.OpenText("job_data.csv"))
+            using (StreamReader reader = File.OpenText(@"M:\LC_Web\TechJobsConsole\src\TechJobsConsole\job_data.csv"))
             {
                 while (reader.Peek() >= 0)
                 {
